@@ -524,6 +524,7 @@ class Pandas:
                partition_cols: Optional[List[str]] = None,
                preserve_index: bool = True,
                mode: str = "append",
+               database_schema_type: str = "aurora",
                procs_cpu_bound: Optional[int] = None,
                procs_io_bound: Optional[int] = None,
                inplace=True,
@@ -548,6 +549,7 @@ class Pandas:
         :param partition_cols: List of columns names that will be partitions on S3
         :param preserve_index: Should preserve index on S3?
         :param mode: "append", "overwrite", "overwrite_partitions"
+        :param database_schema_type: The schema target type ("aurora", "redshift" for Redshift Spectrum)
         :param procs_cpu_bound: Number of cores used for CPU bound tasks
         :param procs_io_bound: Number of cores used for I/O bound tasks
         :param inplace: True is cheapest (CPU and Memory) but False leaves your DataFrame intact
@@ -582,6 +584,7 @@ class Pandas:
                           partition_cols=partition_cols,
                           preserve_index=preserve_index,
                           mode=mode,
+                          database_schema_type=database_schema_type,
                           compression=None,
                           procs_cpu_bound=procs_cpu_bound,
                           procs_io_bound=procs_io_bound,
@@ -599,6 +602,7 @@ class Pandas:
                    partition_cols=None,
                    preserve_index=True,
                    mode="append",
+                   database_schema_type="aurora",
                    compression="snappy",
                    procs_cpu_bound=None,
                    procs_io_bound=None,
@@ -617,6 +621,7 @@ class Pandas:
         :param partition_cols: List of columns names that will be partitions on S3
         :param preserve_index: Should preserve index on S3?
         :param mode: "append", "overwrite", "overwrite_partitions"
+        :param database_schema_type: The schema target type ("aurora", "redshift" for Redshift Spectrum)
         :param compression: None, snappy, gzip, lzo
         :param procs_cpu_bound: Number of cores used for CPU bound tasks
         :param procs_io_bound: Number of cores used for I/O bound tasks
@@ -635,6 +640,7 @@ class Pandas:
                           partition_cols=partition_cols,
                           preserve_index=preserve_index,
                           mode=mode,
+                          database_schema_type=database_schema_type,
                           compression=compression,
                           procs_cpu_bound=procs_cpu_bound,
                           procs_io_bound=procs_io_bound,
@@ -653,6 +659,7 @@ class Pandas:
               partition_cols: Optional[List[str]] = None,
               preserve_index: bool = True,
               mode: str = "append",
+              database_schema_type: str = "aurora",
               compression: Optional[str] = None,
               procs_cpu_bound: Optional[int] = None,
               procs_io_bound: Optional[int] = None,
@@ -673,6 +680,7 @@ class Pandas:
         :param partition_cols: List of columns names that will be partitions on S3
         :param preserve_index: Should preserve index on S3?
         :param mode: "append", "overwrite", "overwrite_partitions"
+        :param database_schema_type: The schema target type ("aurora", "redshift" for Redshift Spectrum)
         :param compression: None, gzip, snappy, etc
         :param procs_cpu_bound: Number of cores used for CPU bound tasks
         :param procs_io_bound: Number of cores used for I/O bound tasks
@@ -737,6 +745,7 @@ class Pandas:
                                                 preserve_index=preserve_index,
                                                 file_format=file_format,
                                                 mode=mode,
+                                                database_schema_type=database_schema_type,
                                                 compression=compression,
                                                 cast_columns=cast_columns,
                                                 extra_args=extra_args,
@@ -1126,6 +1135,7 @@ class Pandas:
                                                        path=path,
                                                        preserve_index=preserve_index,
                                                        mode="append",
+                                                       database_schema_type="redshift",
                                                        procs_cpu_bound=num_partitions,
                                                        cast_columns=cast_columns_parquet)
             manifest_path: str = f"{path}manifest.json"
@@ -1555,6 +1565,7 @@ class Pandas:
                                            escapechar="\"",
                                            preserve_index=preserve_index,
                                            mode="overwrite",
+                                           database_schema_type="aurora",
                                            procs_cpu_bound=procs_cpu_bound,
                                            procs_io_bound=procs_io_bound,
                                            inplace=inplace)

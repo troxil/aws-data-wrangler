@@ -74,6 +74,7 @@ class Glue:
                          partition_cols: Optional[List[str]] = None,
                          preserve_index: bool = True,
                          mode: str = "append",
+                         database_schema_type: str = "aurora",
                          compression: Optional[str] = None,
                          cast_columns: Optional[Dict[str, str]] = None,
                          extra_args: Optional[Dict[str, Optional[Union[str, int, List[str]]]]] = None,
@@ -106,6 +107,7 @@ class Glue:
         schema, partition_cols_schema = Glue._build_schema(dataframe=dataframe,
                                                            partition_cols=partition_cols,
                                                            preserve_index=preserve_index,
+                                                           database_schema_type=database_schema_type,
                                                            indexes_position=indexes_position,
                                                            cast_columns=cast_columns)
         table = table if table else Glue._parse_table_name(path)
@@ -277,6 +279,7 @@ class Glue:
             dataframe,
             partition_cols: Optional[List[str]],
             preserve_index: bool,
+            database_schema_type: str,
             indexes_position: str,
             cast_columns: Optional[Dict[str, str]] = None) -> Tuple[List[Tuple[str, str]], List[Tuple[str, str]]]:
         cast_columns = {} if cast_columns is None else cast_columns
@@ -295,7 +298,15 @@ class Glue:
                     schema_built.append((name, cast_columns[name]))
             else:
                 try:
-                    athena_type = data_types.pyarrow2athena(dtype)
+                    # choose a datatype to use. Redshift spectrum prefers the -
+                    # same datatypes from redshift vs athenas
+                    if database_schema_type == "athena":
+                        column_data_type = data_types.pyarrow2athena(dtype)
+                    elif database_schema_type == "redshift":
+                        column_data_type = data_types.pyarrow2redshift(dtype)
+                    else:
+                        raise UnsupportedType(f"Unsupported Database Schema target. Choose between athena and redshift.")
+
                 except UndetectedType:
                     raise UndetectedType(f"We can't infer the data type from an entire null object column ({name}). "
                                          f"Please consider pass the type of this column explicitly using the cast "
@@ -303,9 +314,9 @@ class Glue:
                 except UnsupportedType:
                     raise UnsupportedType(f"Unsupported Pyarrow type for column {name}: {dtype}")
                 if name in partition_cols:
-                    partition_cols_types[name] = athena_type
+                    partition_cols_types[name] = column_data_type
                 else:
-                    schema_built.append((name, athena_type))
+                    schema_built.append((name, column_data_type))
 
         partition_cols_schema_built: List = [(name, partition_cols_types[name]) for name in partition_cols]
 
